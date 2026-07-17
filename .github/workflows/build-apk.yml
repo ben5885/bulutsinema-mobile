@@ -20,6 +20,12 @@ jobs:
         working-directory: bulutsinema_mobile
         run: flutter create . --platforms android --org com.bulutsinema.app
 
+      - name: Kotlin versiyonunu güncelle
+        working-directory: bulutsinema_mobile
+        run: |
+          sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.9.22"/' android/build.gradle || true
+          sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' android/settings.gradle
+
       - name: Düz HTTP izni ekle (yerel PC API için)
         working-directory: bulutsinema_mobile
         run: |
