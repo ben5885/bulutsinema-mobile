@@ -26,10 +26,21 @@ jobs:
           sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.9.22"/' android/build.gradle || true
           sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' android/settings.gradle
 
-      - name: Düz HTTP izni ekle (yerel PC API için)
+      - name: Ağ güvenlik yapılandırması ekle (HTTP izni)
         working-directory: bulutsinema_mobile
         run: |
-          sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
+          mkdir -p android/app/src/main/res/xml
+          cat > android/app/src/main/res/xml/network_security_config.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <network-security-config>
+              <base-config cleartextTrafficPermitted="true">
+                  <trust-anchors>
+                      <certificates src="system" />
+                  </trust-anchors>
+              </base-config>
+          </network-security-config>
+          EOF
+          sed -i 's/android:label="bulutsinema_mobile"/android:label="bulutsinema_mobile"\n        android:networkSecurityConfig="@xml\/network_security_config"/' android/app/src/main/AndroidManifest.xml
 
       - name: Paketleri indir
         working-directory: bulutsinema_mobile
