@@ -2,8 +2,8 @@ name: APK Derle
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [ main, master ]
+  workflow_dispatch: {}
 
 jobs:
   build:
@@ -13,18 +13,27 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.24.0'
           channel: 'stable'
 
-      - name: Proje klasörüne gir ve derle
+      - name: Android platform dosyalarını oluştur
+        working-directory: bulutsinema_mobile
+        run: flutter create . --platforms android --org com.bulutsinema.app
+
+      - name: Düz HTTP izni ekle (yerel PC API için)
         working-directory: bulutsinema_mobile
         run: |
-          flutter create .
-          flutter pub get
-          flutter build apk --release
+          sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
 
-      - name: APK'yı kaydet
-        uses: actions/upload-artifact@v4
+      - name: Paketleri indir
+        working-directory: bulutsinema_mobile
+        run: flutter pub get
+
+      - name: APK derle
+        working-directory: bulutsinema_mobile
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
         with:
           name: bulutsinema-apk
           path: bulutsinema_mobile/build/app/outputs/flutter-apk/app-release.apk
