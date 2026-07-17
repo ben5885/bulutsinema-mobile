@@ -26,7 +26,43 @@ jobs:
           sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.9.22"/' android/build.gradle || true
           sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' android/settings.gradle
 
-      - name: Ağ güvenlik yapılandırması ekle (HTTP izni)
+      - name: AndroidManifest.xml'i doğrudan HTTP izniyle yaz
+        working-directory: bulutsinema_mobile
+        run: |
+          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              package="com.bulutsinema.app">
+              <uses-permission android:name="android.permission.INTERNET"/>
+              <application
+                  android:label="bulutsinema_mobile"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/ic_launcher"
+                  android:usesCleartextTraffic="true"
+                  android:networkSecurityConfig="@xml/network_security_config">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:theme="@style/LaunchTheme"
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                      android:hardwareAccelerated="true"
+                      android:windowSoftInputMode="adjustResize">
+                      <meta-data
+                          android:name="io.flutter.embedding.android.NormalTheme"
+                          android:resource="@style/NormalTheme"/>
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+                  <meta-data
+                      android:name="flutterEmbedding"
+                      android:value="2"/>
+              </application>
+          </manifest>
+          EOF
+
+      - name: network_security_config.xml oluştur
         working-directory: bulutsinema_mobile
         run: |
           mkdir -p android/app/src/main/res/xml
@@ -40,7 +76,6 @@ jobs:
               </base-config>
           </network-security-config>
           EOF
-          sed -i 's/android:label="bulutsinema_mobile"/android:label="bulutsinema_mobile"\n        android:networkSecurityConfig="@xml\/network_security_config"/' android/app/src/main/AndroidManifest.xml
 
       - name: Paketleri indir
         working-directory: bulutsinema_mobile
