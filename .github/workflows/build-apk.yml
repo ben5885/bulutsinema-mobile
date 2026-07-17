@@ -1,0 +1,30 @@
+name: APK Derle
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+
+      - name: Proje klasörüne gir ve derle
+        working-directory: bulutsinema_mobile
+        run: |
+          flutter create .
+          flutter pub get
+          flutter build apk --release
+
+      - name: APK'yı kaydet
+        uses: actions/upload-artifact@v4
+        with:
+          name: bulutsinema-apk
+          path: bulutsinema_mobile/build/app/outputs/flutter-apk/app-release.apk
